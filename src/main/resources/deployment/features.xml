@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<features name="${feature.name}-${project.version}">
+    <!--
+        Usage:
+        features:addurl mvn:${project.groupId}/${project.artifactId}/${project.version}/xml/features
+     -->
+
+    <feature name="${feature.name}" version="${project.version}">
+        <feature>jndi</feature>
+        <feature>transaction</feature>
+        <feature>jpa</feature>
+        <feature>jdbc</feature>
+        <feature>connector</feature>
+        <feature>spring-dm</feature>
+
+        <bundle dependency='true'>mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
+        <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
+        <bundle>mvn:${project.groupId}/${project.artifactId}/${project.version}</bundle>
+    </feature>
+
+    <feature name="${feature.name}-db-sqlserver" version="${pom.version}" resolver="(obr)">
+        <bundle start-level='40'>wrap:mvn:com.microsoft/sqljdbc42/${sqljdbc.driver.version}</bundle>
+    </feature>
+
+    <feature name="${feature.name}-db-mysql" version="${pom.version}" resolver="(obr)">
+        <bundle start-level='40'>mvn:org.mariadb.jdbc/mariadb-java-client/${mariadb.driver.version}</bundle>
+    </feature>
+
+    <feature name="${feature.name}-xads1" version="${pom.version}" resolver="(obr)">
+        <feature version="${pom.version}" >${feature.name}</feature>
+        <bundle start-level='60'>spring:mvn:${project.groupId}/${project.artifactId}/${project.version}/xml/connection-xads1</bundle>
+    </feature>
+
+    <feature name="${feature.name}-xads2" version="${pom.version}" resolver="(obr)">
+        <feature version="${pom.version}" >${feature.name}</feature>
+        <bundle start-level='60'>spring:mvn:${project.groupId}/${project.artifactId}/${project.version}/xml/connection-xads2</bundle>
+    </feature>
+
+    <feature name="${feature.name}-xads3" version="${pom.version}" resolver="(obr)">
+        <feature version="${pom.version}" >${feature.name}</feature>
+        <bundle start-level='60'>spring:mvn:${project.groupId}/${project.artifactId}/${project.version}/xml/connection-xads3</bundle>
+    </feature>
+
+    <feature name="${feature.name}-docker-connectivity" version="${pom.version}" resolver="(obr)"/>
+</features>

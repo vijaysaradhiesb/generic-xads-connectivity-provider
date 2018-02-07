@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+       xmlns:osgi="http://www.springframework.org/schema/osgi"
+       xmlns:ctx="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                       http://www.springframework.org/schema/beans/spring-beans.xsd
+                       http://www.springframework.org/schema/osgi-compendium
+                       http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
+                       http://www.springframework.org/schema/context
+                       http://www.springframework.org/schema/context/spring-context.xsd
+                       http://www.springframework.org/schema/osgi
+                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+    <osgix:cm-properties id="properties" persistent-id="com.integ.connectivity.xads3"/>
+    <osgix:cm-properties id="xaProperties" persistent-id="com.integ.connectivity.xads3.properties"/>
+
+    <ctx:property-placeholder properties-ref="properties"/>
+
+    <bean id="datasourceMBean" class="org.springframework.jmx.export.MBeanExporter">
+        <property name="beans">
+            <map>
+                <entry key="Aries:application=db,type=${xads3.osgi.name}">
+                    <bean id="recoverableDataSourceMBean" class="com.integ.integration.product.connectivity.xads.AriesRecoverableDatasourceMbean">
+                        <constructor-arg ref="ariesDataSource"/>
+                        <constructor-arg value="${xads3.osgi.name}"/>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <osgi:reference id="ariesDataSource" interface="javax.sql.DataSource" filter="(integ.xads.name=${xads3.osgi.name})(aries.xa.aware=true)" depends-on="dataSourceService"/>
+
+    <bean id="internalXADataSource" class="com.integ.integration.product.connectivity.xads.InternalXaDatasourceInstantiator">
+        <constructor-arg value="${xads3.ds.class}"/>
+        <constructor-arg ref="xaProperties"/>
+    </bean>
+
+    <osgi:service id="dataSourceService" ref="internalXADataSource" interface="javax.sql.XADataSource">
+        <service-properties>
+            <entry key="integ.xads.name" value="${xads3.osgi.name}"/>
+            <entry key="integ.xads.default" value="${xads3.osgi.default:false}"/>
+
+            <entry key="aries.xa.name" value="${xads3.tm.uniqueResourceName}"/>
+            <entry key="aries.xa.poolMinSize" value="${xads3.ds.minPoolSize}"/>
+            <entry key="aries.xa.poolMaxSize" value="${xads3.ds.maxPoolSize}"/>
+            <entry key="aries.xa.connectionMadIdleMinutes" value="${xads3.ds.connectionMadIdleMinutes:0}"/>
+            <entry key="aries.xa.connectionMaxWaitMilliseconds" value="${xads3.ds.connectionMaxWaitMilliseconds:5000}"/>
+            <entry key="aries.xa.backgroundValidation" value="${xads3.ds.backgroundValidation:true}"/>
+            <entry key="aries.xa.backgroundValidationMilliseconds" value="${xads3.ds.backgroundValidationMilliseconds:15000}"/>
+            <entry key="aries.xa.exceptionSorter" value="${xads3.ds.exception.sorter:none}"/>
+            <entry key="aries.xa.transaction" value="xa"/>
+        </service-properties>
+    </osgi:service>
+
+</beans>
